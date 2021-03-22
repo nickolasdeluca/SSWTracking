@@ -1,0 +1,12 @@
+{
+	"name": "SSWTracking",
+	"description": "Exemplo simples de como visualizar encomedas rastreadas pelo sistema da SSW Sistemas.",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "./",
+	"projects": [],
+	"dependencies": {
+		"https://github.com/ahausladen/jsondataobjects": ">0.0.0",
+		"https://github.com/viniciussanchez/restrequest4delphi": "^v3.0.5"
+	}
+}
