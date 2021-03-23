@@ -3,14 +3,25 @@ unit Controller;
 interface
 
 uses
+  { WinAPI }
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  { System }
+  System.SysUtils, System.Variants, System.Classes, System.DateUtils,
+  { Vcl }
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids,
+  { JsonDataObjects }
   JsonDataObjects,
-  RESTRequest4D, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  { RESTRequest4D }
+  RESTRequest4D,
+  { FireDAC }
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  Data.DB, Vcl.Grids, Vcl.DBGrids, XDBGrid, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  { Data }
+  Data.DB,
+  { XComponents }
+  XDBGrid;
 
 type
   TFController = class(TForm)
@@ -20,9 +31,16 @@ type
     XDBGrid1: TXDBGrid;
     mtDataDATAHORA: TDateTimeField;
     mtDataUNIDADE: TStringField;
-    mtDataSITUACAO: TBlobField;
     edChave: TEdit;
+    mtDataSITUACAO: TStringField;
+    mtDataDETAIL: TStringField;
+    tiRefresh: TTimer;
+    pnLightBase: TPanel;
+    pnLightBulb: TPanel;
     procedure btRequestClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure XDBGrid1CellDblClick(Column: TColumn);
+    procedure tiRefreshTimer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -36,35 +54,91 @@ implementation
 
 {$R *.dfm}
 
+uses Detail, ThreadCustom;
+
 procedure TFController.btRequestClick(Sender: TObject);
-var
-  bodydata, response, header, trackingData: TJsonObject;
-  tracking: TJsonArray;
-  I: Integer;
 begin
-  bodydata := TJsonObject.Create;
+  THC.New
+    .Initialize(
+      procedure
+      var
+        bodydata, response, header: TJsonObject;
+        tracking: TJsonArray;
+      begin
+        THC.SynchronizeAsync(
+        procedure
+        begin
+          pnLightBulb.Color := clRed;
+        end);
 
-  bodydata.S['chave_nfe'] := Trim(edChave.Text);
+        bodydata := TJsonObject.Create;
 
-  response := TJsonObject.Parse(TRequest
-            .New
-            .BaseURL('https://ssw.inf.br/api/trackingdanfe')
-            .ContentType('application/json')
-            .Accept('application/json')
-            .AddBody(bodydata.ToJSON)
-            .Post
-            .Content) as TJsonObject;
+        bodydata.S['chave_nfe'] := Trim(edChave.Text);
 
-  header := response.O['documento'].O['header'];
-  tracking := response.O['documento'].A['tracking'];
+        response := TJsonObject.Parse(TRequest
+                  .New
+                  .BaseURL('https://ssw.inf.br/api/trackingdanfe')
+                  .ContentType('application/json')
+                  .Accept('application/json')
+                  .AddBody(bodydata.ToJSON)
+                  .Post
+                  .Content) as TJsonObject;
 
-  for trackingData in tracking do
-  begin
-    ShowMessage(trackingData.S['descricao']);
-  end;
+        if not(response.B['success']) then
+          Exit;
 
-  ShowMessage(header.ToJSON(false));
-  ShowMessage(tracking.ToJSON(false));
+        header := response.O['documento'].O['header'];
+        tracking := response.O['documento'].A['tracking'];
+
+        THC.SynchronizeAsync(
+        procedure
+        var
+          trackingData: TJsonObject;
+        begin
+          mtData.EmptyDataSet;
+
+          mtData.DisableControls;
+          try
+            for trackingData in tracking do
+            begin
+              mtData.Append;
+              mtDataDATAHORA.AsDateTime := ISO8601ToDate(trackingData.S['data_hora']);
+              mtDataUNIDADE.AsString := trackingData.S['cidade'];
+              mtDataSITUACAO.AsString := trackingData.S['descricao'];
+              mtDataDETAIL.AsString := trackingData.ToJSON;
+              mtData.Post;
+            end;
+          finally
+            mtData.EnableControls;
+          end;
+        end);
+
+        THC.SynchronizeAsync(
+        procedure
+        begin
+          pnLightBulb.Color := clGreen;
+        end);
+      end).Start;
+end;
+
+procedure TFController.FormCreate(Sender: TObject);
+begin
+  mtData.CreateDataSet;
+end;
+
+procedure TFController.tiRefreshTimer(Sender: TObject);
+begin
+  if not(Trim(edChave.Text).IsEmpty) then
+    btRequest.Click;
+end;
+
+procedure TFController.XDBGrid1CellDblClick(Column: TColumn);
+begin
+  if not(Assigned(FDetail)) then
+    Application.CreateForm(TFDetail, FDetail);
+
+  FDetail.loadData(TJsonObject.Parse(mtDataDETAIL.AsString) as TJsonObject);
+  FDetail.Show;
 end;
 
 end.
