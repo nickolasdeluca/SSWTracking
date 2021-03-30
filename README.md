@@ -1,2 +1,2 @@
 # SSWTracking
- Exemplo simples de como visualizar encomedas rastreadas pelo sistema da SSW Sistemas.
+ Exemplo simples de como visualizar encomendas rastreadas pelo sistema da SSW Sistemas.
