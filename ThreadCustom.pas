@@ -1,7 +1,9 @@
-//
-// Created by Danilo Lucas - developer.dlio@gmail.com
-// 01-03-2021
-//
+{
+  *************************************
+  Created by Danilo Lucas
+  Github - https://github.com/dliocode
+  *************************************
+}
 
 unit ThreadCustom;
 
@@ -15,52 +17,53 @@ type
 
   Exception = System.SysUtils.Exception;
 
-  TOnExecute = reference to procedure;
-
   TOnError = reference to procedure(const E: Exception; out AContinue: Boolean);
 
   ITH = interface
     ['{8754415A-5B91-4372-BE5E-3B08C173B6B6}']
-    function Initialize(const AProc: TOnExecute): ITH;
-    function InitializeAsync(const AProc: TOnExecute): ITH;
-    function InitializeSync(const AProc: TOnExecute): ITH;
-    function Add(const AProc: TOnExecute): ITH;
-    function AddAsync(const AProc: TOnExecute): ITH;
-    function AddSync(const AProc: TOnExecute): ITH;
+    function Initialize(const AProc: TThreadProcedure): ITH;
+    function InitializeAsync(const AProc: TThreadProcedure): ITH;
+    function InitializeSync(const AProc: TThreadProcedure): ITH;
+    function Add(const AProc: TThreadProcedure): ITH;
+    function AddAsync(const AProc: TThreadProcedure): ITH;
+    function AddSync(const AProc: TThreadProcedure): ITH;
     function Error(const AProc: TOnError): ITH;
-    function Finish(const AProc: TOnExecute): ITH;
-    function FinishAsync(const AProc: TOnExecute): ITH;
-    function FinishSync(const AProc: TOnExecute): ITH;
+    function Finish(const AProc: TThreadProcedure): ITH;
+    function FinishAsync(const AProc: TThreadProcedure): ITH;
+    function FinishSync(const AProc: TThreadProcedure): ITH;
     procedure Start;
     procedure StartWait;
   end;
 
-  THC = class(TInterfacedObject, ITH)
+  THC = class sealed(TInterfacedObject, ITH)
   private
-    FBegin: TOnExecute;
-    FEnd: TOnExecute;
+    FException: Exception;
+    FInitialize: TThreadProcedure;
+    FFinish: TThreadProcedure;
     FError: TOnError;
-    FTask: TArray<ITask>;
+    FAdd: TArray<ITask>;
+
     function StartThread: TThread;
   protected
     constructor Create;
   public
-    function Initialize(const AProc: TOnExecute): ITH;
-    function InitializeAsync(const AProc: TOnExecute): ITH;
-    function InitializeSync(const AProc: TOnExecute): ITH;
-    function Add(const AProc: TOnExecute): ITH;
-    function AddAsync(const AProc: TOnExecute): ITH;
-    function AddSync(const AProc: TOnExecute): ITH;
+    function Initialize(const AProc: TThreadProcedure): ITH;
+    function InitializeAsync(const AProc: TThreadProcedure): ITH;
+    function InitializeSync(const AProc: TThreadProcedure): ITH;
+    function Add(const AProc: TThreadProcedure): ITH;
+    function AddAsync(const AProc: TThreadProcedure): ITH;
+    function AddSync(const AProc: TThreadProcedure): ITH;
     function Error(const AProc: TOnError): ITH;
-    function Finish(const AProc: TOnExecute): ITH;
-    function FinishAsync(const AProc: TOnExecute): ITH;
-    function FinishSync(const AProc: TOnExecute): ITH;
+    function Finish(const AProc: TThreadProcedure): ITH;
+    function FinishAsync(const AProc: TThreadProcedure): ITH;
+    function FinishSync(const AProc: TThreadProcedure): ITH;
     procedure Start;
     procedure StartWait;
 
     class function New: ITH;
-    class procedure Synchronize(const AProc: TOnExecute);
-    class procedure SynchronizeAsync(const AProc: TOnExecute);
+
+    class procedure Synchronize(const AProc: TThreadProcedure);
+    class procedure SynchronizeAsync(const AProc: TThreadProcedure);
   end;
 
   // THC.New
@@ -109,42 +112,38 @@ begin
   Result := THC.Create;
 end;
 
-class procedure THC.Synchronize(const AProc: TOnExecute);
+class procedure THC.Synchronize(const AProc: TThreadProcedure);
 begin
-  TThread.Synchronize(nil,
-    procedure
-    begin
-      if Assigned(AProc) then
-        AProc;
-    end);
+  if (TThread.Current.ThreadID = MainThreadID) then
+    AProc
+  else
+    TThread.Synchronize(nil, AProc);
 end;
 
-class procedure THC.SynchronizeAsync(const AProc: TOnExecute);
+class procedure THC.SynchronizeAsync(const AProc: TThreadProcedure);
 begin
-  TThread.Queue(nil,
-    procedure
-    begin
-      if Assigned(AProc) then
-        AProc;
-    end);
+  if TThread.Current.ThreadID = MainThreadID then
+    AProc
+  else
+    TThread.Queue(nil, AProc);
 end;
 
 constructor THC.Create;
 begin
   inherited;
-  FTask := [];
-  FBegin := nil;
-  FEnd := nil;
+  FAdd := [];
+  FInitialize := nil;
+  FFinish := nil;
   FError := nil;
 end;
 
-function THC.Initialize(const AProc: TOnExecute): ITH;
+function THC.Initialize(const AProc: TThreadProcedure): ITH;
 begin
   Result := Self;
-  FBegin := AProc;
+  FInitialize := AProc;
 end;
 
-function THC.InitializeAsync(const AProc: TOnExecute): ITH;
+function THC.InitializeAsync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Initialize(
     procedure
@@ -153,7 +152,7 @@ begin
     end);
 end;
 
-function THC.InitializeSync(const AProc: TOnExecute): ITH;
+function THC.InitializeSync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Initialize(
     procedure
@@ -162,18 +161,26 @@ begin
     end);
 end;
 
-function THC.Add(const AProc: TOnExecute): ITH;
+function THC.Add(const AProc: TThreadProcedure): ITH;
 begin
   Result := Self;
-  FTask := Concat(FTask, [TTask.Create(
+  FAdd := Concat(FAdd, [TTask.Create(
     procedure
     begin
-      if Assigned(AProc) then
-        AProc;
+      try
+        if Assigned(AProc) then
+          AProc;
+      except
+        on E: Exception do
+        begin
+          FException := E;
+          raise;
+        end;
+      end;
     end)]);
 end;
 
-function THC.AddAsync(const AProc: TOnExecute): ITH;
+function THC.AddAsync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Add(
     procedure
@@ -182,7 +189,7 @@ begin
     end);
 end;
 
-function THC.AddSync(const AProc: TOnExecute): ITH;
+function THC.AddSync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Add(
     procedure
@@ -197,13 +204,13 @@ begin
   FError := AProc;
 end;
 
-function THC.Finish(const AProc: TOnExecute): ITH;
+function THC.Finish(const AProc: TThreadProcedure): ITH;
 begin
   Result := Self;
-  FEnd := AProc;
+  FFinish := AProc;
 end;
 
-function THC.FinishAsync(const AProc: TOnExecute): ITH;
+function THC.FinishAsync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Finish(
     procedure
@@ -212,7 +219,7 @@ begin
     end);
 end;
 
-function THC.FinishSync(const AProc: TOnExecute): ITH;
+function THC.FinishSync(const AProc: TThreadProcedure): ITH;
 begin
   Result := Finish(
     procedure
@@ -237,17 +244,17 @@ end;
 
 function THC.StartThread: TThread;
 var
-  LBegin: TOnExecute;
-  LEnd: TOnExecute;
+  LInitialize: TThreadProcedure;
+  LFinish: TThreadProcedure;
   LError: TOnError;
-  LTasks: TArray<ITask>;
+  LAdd: TArray<ITask>;
   LIsContinue: Boolean;
   LThread: TThread;
 begin
-  LBegin := FBegin;
-  LEnd := FEnd;
+  LInitialize := FInitialize;
+  LFinish := FFinish;
   LError := FError;
-  LTasks := FTask;
+  LAdd := FAdd;
   LIsContinue := True;
 
   LThread := TThread.CreateAnonymousThread(
@@ -255,23 +262,26 @@ begin
     begin
       try
         try
-          if Assigned(LBegin) then
-            LBegin;
+          if Assigned(LInitialize) then
+            LInitialize;
 
-          if Length(LTasks) > 0 then
+          if Length(LAdd) > 0 then
           begin
-            TParallel.for(Low(LTasks), High(LTasks),
+            TParallel.for(Low(LAdd), High(LAdd),
               procedure(Index: Integer)
               begin
-                LTasks[Index].Start;
+                LAdd[Index].Start;
               end);
 
-            TTask.WaitForAll(LTasks);
+            TTask.WaitForAll(LAdd);
           end;
         except
           on E: Exception do
             if Assigned(LError) then
-              LError(E, LIsContinue)
+              if Assigned(FException) then
+                LError(FException, LIsContinue)
+              else
+                LError(E, LIsContinue);
             else
               raise;
         end;
@@ -279,8 +289,8 @@ begin
         if not LThread.FreeOnTerminate then
           LThread.Terminate;
 
-        if Assigned(LEnd) and LIsContinue then
-          LEnd;
+        if Assigned(LFinish) and LIsContinue then
+          LFinish;
       end;
     end);
   LThread.Start;

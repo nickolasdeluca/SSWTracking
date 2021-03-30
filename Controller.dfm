@@ -1,7 +1,7 @@
 object FController: TFController
   Left = 0
   Top = 0
-  Caption = 'FController'
+  Caption = 'Rastreador - SSW'
   ClientHeight = 386
   ClientWidth = 973
   Color = clBtnFace
@@ -69,9 +69,10 @@ object FController: TFController
     Width = 957
     Height = 21
     Anchors = [akLeft, akTop, akRight]
+    PopupMenu = pmEdChave
     TabOrder = 2
-    Text = '43210347960950041901550130005528921074868179'
     TextHint = 'Chave da NFE'
+    OnChange = edChaveChange
   end
   object pnLightBase: TPanel
     Left = 8
@@ -137,5 +138,13 @@ object FController: TFController
     OnTimer = tiRefreshTimer
     Left = 480
     Top = 200
+  end
+  object pmEdChave: TPopupMenu
+    Left = 352
+    Top = 144
+    object miSaveChave: TMenuItem
+      Caption = 'Salvar'
+      OnClick = miSaveChaveClick
+    end
   end
 end

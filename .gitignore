@@ -66,4 +66,7 @@ __recovery/
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
 
+# Delphi compiler default folder for 32bit applications
+Win32/
+
 # End of https://www.toptal.com/developers/gitignore/api/delphi

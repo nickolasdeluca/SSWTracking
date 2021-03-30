@@ -21,7 +21,7 @@ uses
   { Data }
   Data.DB,
   { XComponents }
-  XDBGrid;
+  XDBGrid, Vcl.Menus;
 
 type
   TFController = class(TForm)
@@ -37,10 +37,14 @@ type
     tiRefresh: TTimer;
     pnLightBase: TPanel;
     pnLightBulb: TPanel;
+    pmEdChave: TPopupMenu;
+    miSaveChave: TMenuItem;
     procedure btRequestClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure XDBGrid1CellDblClick(Column: TColumn);
     procedure tiRefreshTimer(Sender: TObject);
+    procedure edChaveChange(Sender: TObject);
+    procedure miSaveChaveClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -49,12 +53,13 @@ type
 
 var
   FController: TFController;
+  Settings: TJsonObject;
 
 implementation
 
 {$R *.dfm}
 
-uses Detail, ThreadCustom;
+uses Detail, ThreadCustom, Globals;
 
 procedure TFController.btRequestClick(Sender: TObject);
 begin
@@ -121,9 +126,27 @@ begin
       end).Start;
 end;
 
+procedure TFController.edChaveChange(Sender: TObject);
+begin
+  Settings.S['chave'] := Trim(edChave.Text);
+end;
+
 procedure TFController.FormCreate(Sender: TObject);
 begin
   mtData.CreateDataSet;
+
+  Settings := TJsonObject.Create;
+
+  if FileExists(SettingsFileName) then
+  begin
+    Settings.LoadFromFile(SettingsFileName);
+    edChave.Text := Settings.S['chave'];
+  end;
+end;
+
+procedure TFController.miSaveChaveClick(Sender: TObject);
+begin
+  Settings.SaveToFile(SettingsFileName);
 end;
 
 procedure TFController.tiRefreshTimer(Sender: TObject);

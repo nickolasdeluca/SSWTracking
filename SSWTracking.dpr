@@ -4,7 +4,8 @@ uses
   Vcl.Forms,
   Controller in 'Controller.pas' {FController},
   Detail in 'Detail.pas' {FDetail},
-  ThreadCustom in 'ThreadCustom.pas';
+  ThreadCustom in 'ThreadCustom.pas',
+  Globals in 'Globals.pas';
 
 {$R *.res}
 

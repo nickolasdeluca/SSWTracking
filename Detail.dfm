@@ -1,7 +1,7 @@
 object FDetail: TFDetail
   Left = 0
   Top = 0
-  Caption = 'FDetail'
+  Caption = 'Detalhes do evento'
   ClientHeight = 261
   ClientWidth = 519
   Color = clBtnFace
