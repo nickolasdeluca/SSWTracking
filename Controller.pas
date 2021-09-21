@@ -28,7 +28,7 @@ type
     btRequest: TButton;
     mtData: TFDMemTable;
     dsData: TDataSource;
-    XDBGrid1: TXDBGrid;
+    XDBGrid: TXDBGrid;
     mtDataDATAHORA: TDateTimeField;
     mtDataUNIDADE: TStringField;
     edChave: TEdit;
@@ -39,9 +39,10 @@ type
     pnLightBulb: TPanel;
     pmEdChave: TPopupMenu;
     miSaveChave: TMenuItem;
+    mtDataHEADER: TStringField;
     procedure btRequestClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure XDBGrid1CellDblClick(Column: TColumn);
+    procedure XDBGridCellDblClick(Column: TColumn);
     procedure tiRefreshTimer(Sender: TObject);
     procedure edChaveChange(Sender: TObject);
     procedure miSaveChaveClick(Sender: TObject);
@@ -69,12 +70,16 @@ begin
       var
         bodydata, response, header: TJsonObject;
         tracking: TJsonArray;
-      begin
-        THC.SynchronizeAsync(
-        procedure
+        procedure _setBulbColor(AColor: TColor);
         begin
-          pnLightBulb.Color := clRed;
-        end);
+          THC.SynchronizeAsync(
+          procedure
+          begin
+            pnLightBulb.Color := AColor;
+          end);
+        end;
+      begin
+        _setBulbColor(clRed);
 
         bodydata := TJsonObject.Create;
 
@@ -90,7 +95,11 @@ begin
                   .Content) as TJsonObject;
 
         if not(response.B['success']) then
+        begin
+          _setBulbColor(clGreen);
+
           Exit;
+        end;
 
         header := response.O['documento'].O['header'];
         tracking := response.O['documento'].A['tracking'];
@@ -111,6 +120,7 @@ begin
               mtDataUNIDADE.AsString := trackingData.S['cidade'];
               mtDataSITUACAO.AsString := trackingData.S['descricao'];
               mtDataDETAIL.AsString := trackingData.ToJSON;
+              mtDataHEADER.AsString := header.ToJSON;
               mtData.Post;
             end;
           finally
@@ -118,11 +128,7 @@ begin
           end;
         end);
 
-        THC.SynchronizeAsync(
-        procedure
-        begin
-          pnLightBulb.Color := clGreen;
-        end);
+        _setBulbColor(clGreen);
       end).Start;
 end;
 
@@ -155,12 +161,12 @@ begin
     btRequest.Click;
 end;
 
-procedure TFController.XDBGrid1CellDblClick(Column: TColumn);
+procedure TFController.XDBGridCellDblClick(Column: TColumn);
 begin
   if not(Assigned(FDetail)) then
     Application.CreateForm(TFDetail, FDetail);
 
-  FDetail.loadData(TJsonObject.Parse(mtDataDETAIL.AsString) as TJsonObject);
+  FDetail.loadData(TJsonObject.Parse(mtDataHEADER.AsString) as TJsonObject, TJsonObject.Parse(mtDataDETAIL.AsString) as TJsonObject);
   FDetail.Show;
 end;
 

@@ -1,108 +1,298 @@
 object FDetail: TFDetail
+  AlignWithMargins = True
   Left = 0
   Top = 0
+  Margins.Left = 0
+  Margins.Top = 0
+  Margins.Right = 0
+  Margins.Bottom = 0
   Caption = 'Detalhes do evento'
-  ClientHeight = 261
-  ClientWidth = 519
+  ClientHeight = 326
+  ClientWidth = 517
   Color = clBtnFace
-  Constraints.MaxHeight = 300
-  Constraints.MaxWidth = 535
-  Constraints.MinHeight = 300
-  Constraints.MinWidth = 535
+  Constraints.MaxHeight = 365
+  Constraints.MaxWidth = 533
+  Constraints.MinHeight = 365
+  Constraints.MinWidth = 533
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object edDataHora: TXEdit
-    Left = 8
-    Top = 8
-    Width = 121
+  object edOcorrencia: TXEdit
+    AlignWithMargins = True
+    Left = 5
+    Top = 109
+    Width = 507
     Height = 21
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 0
+    Align = alTop
     ReadOnly = True
     TabOrder = 0
-  end
-  object edDominio: TXEdit
-    Left = 135
-    Top = 8
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 1
-  end
-  object edFilial: TXEdit
-    Left = 262
-    Top = 8
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 2
-  end
-  object edCidade: TXEdit
-    Left = 389
-    Top = 8
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 3
-  end
-  object edOcorrencia: TXEdit
-    Left = 8
-    Top = 35
-    Width = 502
-    Height = 21
-    ReadOnly = True
-    TabOrder = 4
+    ExplicitLeft = 8
+    ExplicitTop = 139
+    ExplicitWidth = 502
   end
   object mmDescricao: TMemo
-    Left = 8
-    Top = 62
-    Width = 502
+    AlignWithMargins = True
+    Left = 5
+    Top = 135
+    Width = 507
     Height = 131
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 0
+    Align = alTop
     ReadOnly = True
-    TabOrder = 5
-  end
-  object edTipo: TXEdit
-    Left = 8
-    Top = 199
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 6
-  end
-  object edDataHoraEfetiva: TXEdit
-    Left = 135
-    Top = 199
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 7
-  end
-  object edNomeRecebedor: TXEdit
-    Left = 262
-    Top = 199
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 8
-  end
-  object edNumeroDocumento: TXEdit
-    Left = 389
-    Top = 199
-    Width = 121
-    Height = 21
-    ReadOnly = True
-    TabOrder = 9
+    TabOrder = 1
+    ExplicitLeft = 0
+    ExplicitTop = 265
   end
   object btClose: TButton
-    Left = 435
-    Top = 226
+    Left = 437
+    Top = 295
     Width = 75
     Height = 25
     Caption = 'Fechar'
-    TabOrder = 10
+    TabOrder = 2
+    OnClick = btCloseClick
+  end
+  object edRemetente: TXEdit
+    AlignWithMargins = True
+    Left = 5
+    Top = 5
+    Width = 507
+    Height = 21
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 0
+    Align = alTop
+    ReadOnly = True
+    TabOrder = 3
+    ExplicitLeft = 8
+    ExplicitTop = 8
+    ExplicitWidth = 502
+  end
+  object edDestinatario: TXEdit
+    AlignWithMargins = True
+    Left = 5
+    Top = 31
+    Width = 507
+    Height = 21
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 0
+    Align = alTop
+    ReadOnly = True
+    TabOrder = 4
+    ExplicitLeft = 8
+    ExplicitTop = 33
+    ExplicitWidth = 502
+  end
+  object pnHeaderDocumentData: TPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 57
+    Width = 517
+    Height = 21
+    Margins.Left = 0
+    Margins.Top = 5
+    Margins.Right = 0
+    Margins.Bottom = 0
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'pnHeaderDocumentData'
+    ShowCaption = False
+    TabOrder = 5
+    ExplicitTop = 52
+    ExplicitWidth = 519
+    object edNumeroNf: TXEdit
+      AlignWithMargins = True
+      Left = 5
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 0
+      ExplicitLeft = 13
+    end
+    object edNumeroPedido: TXEdit
+      AlignWithMargins = True
+      Left = 133
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 1
+      ExplicitLeft = 141
+    end
+  end
+  object pnTrackingData: TPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 83
+    Width = 517
+    Height = 21
+    Margins.Left = 0
+    Margins.Top = 5
+    Margins.Right = 0
+    Margins.Bottom = 0
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'pnHeaderDocumentData'
+    ShowCaption = False
+    TabOrder = 6
+    ExplicitTop = 73
+    ExplicitWidth = 519
+    object edDataHora: TXEdit
+      AlignWithMargins = True
+      Left = 133
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object edDominio: TXEdit
+      AlignWithMargins = True
+      Left = 389
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object edFilial: TXEdit
+      AlignWithMargins = True
+      Left = 261
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 2
+    end
+    object edCidade: TXEdit
+      AlignWithMargins = True
+      Left = 5
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 3
+    end
+  end
+  object pnTrackingDataFooter: TPanel
+    AlignWithMargins = True
+    Left = 0
+    Top = 271
+    Width = 517
+    Height = 21
+    Margins.Left = 0
+    Margins.Top = 5
+    Margins.Right = 0
+    Margins.Bottom = 0
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'pnHeaderDocumentData'
+    ShowCaption = False
+    TabOrder = 7
+    ExplicitLeft = -5
+    ExplicitTop = 277
+    object edTipo: TXEdit
+      AlignWithMargins = True
+      Left = 5
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object edDataHoraEfetiva: TXEdit
+      AlignWithMargins = True
+      Left = 133
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object edNomeRecebedor: TXEdit
+      AlignWithMargins = True
+      Left = 261
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 2
+    end
+    object edNumeroDocumento: TXEdit
+      AlignWithMargins = True
+      Left = 389
+      Top = 0
+      Width = 123
+      Height = 21
+      Margins.Left = 5
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ReadOnly = True
+      TabOrder = 3
+    end
   end
 end

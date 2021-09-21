@@ -70,3 +70,4 @@ modules/
 Win32/
 
 # End of https://www.toptal.com/developers/gitignore/api/delphi
+SSWTracking.res

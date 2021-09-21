@@ -12,26 +12,34 @@ uses
   { JsonDataObjects }
   JsonDataObjects,
   { XComponents }
-  XEdit;
+  XEdit, Vcl.ExtCtrls;
 
 type
   TFDetail = class(TForm)
+    edOcorrencia: TXEdit;
+    mmDescricao: TMemo;
+    btClose: TButton;
+    edRemetente: TXEdit;
+    edDestinatario: TXEdit;
+    pnHeaderDocumentData: TPanel;
+    pnTrackingData: TPanel;
     edDataHora: TXEdit;
     edDominio: TXEdit;
     edFilial: TXEdit;
     edCidade: TXEdit;
-    edOcorrencia: TXEdit;
-    mmDescricao: TMemo;
+    pnTrackingDataFooter: TPanel;
     edTipo: TXEdit;
     edDataHoraEfetiva: TXEdit;
     edNomeRecebedor: TXEdit;
     edNumeroDocumento: TXEdit;
-    btClose: TButton;
+    edNumeroNf: TXEdit;
+    edNumeroPedido: TXEdit;
+    procedure btCloseClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
-    procedure loadData(DataAsJson: TJsonObject);
+    procedure loadData(HeaderAsJson: TJsonObject; DataAsJson: TJsonObject);
   end;
 
 var
@@ -43,8 +51,18 @@ implementation
 
 { TFDetail }
 
-procedure TFDetail.loadData(DataAsJson: TJsonObject);
+procedure TFDetail.btCloseClick(Sender: TObject);
 begin
+  Close;
+end;
+
+procedure TFDetail.loadData(HeaderAsJson: TJsonObject; DataAsJson: TJsonObject);
+begin
+  edRemetente.Text := HeaderAsJson.S['remetente'];
+  edDestinatario.Text := HeaderAsJson.S['destinatario'];
+  edNumeroNf.Text := HeaderAsJson.S['nro_nf'];
+  edNumeroPedido.Text := HeaderAsJson.S['pedido'];
+
   edDataHora.Text := DateToStr(ISO8601ToDate(DataAsJson.S['data_hora']));
   edDominio.Text := DataAsJson.S['dominio'];
   edFilial.Text := DataAsJson.S['filial'];

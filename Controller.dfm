@@ -12,6 +12,7 @@ object FController: TFController
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
     973
@@ -28,20 +29,21 @@ object FController: TFController
     TabOrder = 0
     OnClick = btRequestClick
   end
-  object XDBGrid1: TXDBGrid
+  object XDBGrid: TXDBGrid
     Left = 8
     Top = 35
     Width = 957
     Height = 312
     Anchors = [akLeft, akTop, akRight, akBottom]
     DataSource = dsData
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
-    OnCellDblClick = XDBGrid1CellDblClick
+    OnCellDblClick = XDBGridCellDblClick
     Columns = <
       item
         Expanded = False
@@ -125,6 +127,10 @@ object FController: TFController
     end
     object mtDataDETAIL: TStringField
       FieldName = 'DETAIL'
+      Size = 1000
+    end
+    object mtDataHEADER: TStringField
+      FieldName = 'HEADER'
       Size = 1000
     end
   end
